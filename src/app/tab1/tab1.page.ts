@@ -25,8 +25,6 @@ export class Tab1Page {
 
   // Função para buscar informações do CEP e do Pokémon
   buscarPokemon() {
-
-    // Buscar informações do CEP
     this.viaCEPService.getViaCEPService(this.areaBuscarPokemon)
     .subscribe((value) => {
       this.areaBusca.logradouro = JSON.parse(JSON.stringify(value))['logradouro'];
@@ -34,8 +32,6 @@ export class Tab1Page {
       this.areaBusca.localidade = ' - ' + JSON.parse(JSON.stringify(value))['localidade'];
       this.areaBusca.uf         = '-' + JSON.parse(JSON.stringify(value))['uf'];
     });
-
-    // Buscar informações do Pokémon
     this.pokeApiService.getPokeAPIService()
     .subscribe((data: any) => {
       this.pokemonData = {
@@ -49,7 +45,6 @@ export class Tab1Page {
     });
   }
 
-  // Função para salvar o Pokémon capturado
   salvarPokemonsCapt() {
     const pokemonsCapt = JSON.parse(localStorage.getItem('pokemonsCapt') || '[]');
     pokemonsCapt.push({
