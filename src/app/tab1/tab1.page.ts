@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PokeAPIService } from '../services/poke-api.service';
+import { PokeAPIService } from "../services/poke-api.service";
 import { ViaCEPService } from '../services/via-cep.service';
 
 @Component({
@@ -8,44 +8,58 @@ import { ViaCEPService } from '../services/via-cep.service';
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page {
-
   areaBuscarPokemon: string = '';
   areaBusca: any = {
     bairro: '',
     localidade: '',
     logradouro: '',
-    uf: ''
-  }
+    uf: '',
+  };
 
-  pokemon: any = {
-    name: '',
-    front_default: '',
-    abilities: '',
-    height: '',
-    weight: ''
-  }
+  pokemonData: any = {};
 
   constructor(
-    private pokeAPIService: PokeAPIService,
+    private pokeApiService: PokeAPIService,
     private viaCEPService: ViaCEPService
-  ) { }
+  ) {}
 
+  // Função para buscar informações do CEP e do Pokémon
   buscarPokemon() {
+
+    // Buscar informações do CEP
     this.viaCEPService.getViaCEPService(this.areaBuscarPokemon)
-      .subscribe((value) => {
-        this.areaBusca.logradouro = JSON.parse(JSON.stringify(value))['logradouro'];
-        this.areaBusca.bairro     = ', ' + JSON.parse(JSON.stringify(value))['bairro'];
-        this.areaBusca.localidade = ' - ' + JSON.parse(JSON.stringify(value))['localidade'];
-        this.areaBusca.uf         = '-' + JSON.parse(JSON.stringify(value))['uf'];
-      });
-    this.pokeAPIService.getPokeAPIService ()
-      .subscribe((value) => {
-        this.pokemon.name          = JSON.parse(JSON.stringify(value))['name'];
-        this.pokemon.front_default = JSON.parse(JSON.stringify(value))['sprites']['other']['dream_world']['front_default'];
-        this.pokemon.abilities     = JSON.parse(JSON.stringify(value))['abilities'].length;
-        this.pokemon.height        = JSON.parse(JSON.stringify(value))['height'];
-        this.pokemon.weight        = JSON.parse(JSON.stringify(value))['weight'];
-      });
+    .subscribe((value) => {
+      this.areaBusca.logradouro = JSON.parse(JSON.stringify(value))['logradouro'];
+      this.areaBusca.bairro     = ', ' + JSON.parse(JSON.stringify(value))['bairro'];
+      this.areaBusca.localidade = ' - ' + JSON.parse(JSON.stringify(value))['localidade'];
+      this.areaBusca.uf         = '-' + JSON.parse(JSON.stringify(value))['uf'];
+    });
+
+    // Buscar informações do Pokémon
+    this.pokeApiService.getPokeAPIService()
+    .subscribe((data: any) => {
+      this.pokemonData = {
+        name: data.name.toUpperCase(),
+        image: data.sprites.other['official-artwork'].front_default,
+        abilities: data.abilities.length,
+        height: data.height,
+        weight: data.weight,
+      };
+      this.salvarPokemonsCapt();
+    });
   }
 
+  // Função para salvar o Pokémon capturado
+  salvarPokemonsCapt() {
+    const pokemonsCapt = JSON.parse(localStorage.getItem('pokemonsCapt') || '[]');
+    pokemonsCapt.push({
+      name: this.pokemonData.name,
+      image: this.pokemonData.image,
+      victories: Math.floor(Math.random() * 10),
+      defeats: Math.floor(Math.random() * 10),
+      draws: Math.floor(Math.random() * 10)
+    });
+    localStorage.setItem('pokemonsCapt', JSON.stringify(pokemonsCapt));
+    localStorage.setItem('tab1Abilities', this.pokemonData.abilities.toString());
+  }
 }
